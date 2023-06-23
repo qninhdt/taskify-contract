@@ -53,7 +53,7 @@ describe("TaskElection", () => {
     })
   })
 
-  describe("Election 1 (two users vote election 0, two other users vote election 1, election 1 wins)", () => {
+  describe("Election 1 (two users vote candidate 0, two other users vote candidate 1, candidate 1 wins)", () => {
     it("Should be created", async () => {
       await tkfToken.approve(taskElection.address, TKF(15))
 
