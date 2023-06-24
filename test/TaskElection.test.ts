@@ -72,6 +72,10 @@ describe("TaskElection", () => {
       expect(election.reward).to.equal(TKF(15))
     })
 
+    it("Should have right author", async () => {
+      expect((await taskElection.elections(0)).author).to.equal(owner.address)
+    })
+
     it("Should add 2 candidates", async () => {
       await taskElection.addCandidate(0, "Candidate 1")
       await taskElection.addCandidate(0, "Candidate 2")
@@ -130,6 +134,62 @@ describe("TaskElection", () => {
       )
       expect(await tkfToken.balanceOf(users[3].address)).to.equal(
         TKF(100 - 4 + 16),
+      )
+    })
+  })
+
+  describe("Election 2 (one user vote candidate 0, one other users vote candidate 1, election is cancelled)", () => {
+    async function createElection2() {
+      await tkfToken.approve(taskElection.address, TKF(15))
+
+      await taskElection.createElection(
+        "https://example.com",
+        "Election 2",
+        "Election 2 description",
+        TKF(15),
+      )
+
+      await taskElection.addCandidate(1, "Candidate 1")
+      await taskElection.addCandidate(1, "Candidate 2")
+
+      const votes = [
+        [0, TKF(2)],
+        [1, TKF(2)],
+      ]
+
+      for (let i = 0; i < 2; i++) {
+        await tkfToken
+          .connect(users[i])
+          .approve(taskElection.address, votes[i][1])
+        await taskElection
+          .connect(users[i])
+          .castVote(1, votes[i][0], votes[i][1])
+      }
+    }
+
+    let ownerLastBalance: any
+    let user1LastBalance: any
+    let user2LastBalance: any
+
+    it("Should be cancelled", async () => {
+      ownerLastBalance = await tkfToken.balanceOf(owner.address)
+      user1LastBalance = await tkfToken.balanceOf(users[0].address)
+      user2LastBalance = await tkfToken.balanceOf(users[1].address)
+
+      await createElection2()
+      await taskElection.cancelElection(1)
+
+      const election = await taskElection.elections(1)
+      expect(election.state).to.equal(2)
+    })
+
+    it("Should refund voters", async () => {
+      expect(await tkfToken.balanceOf(owner.address)).to.equal(ownerLastBalance)
+      expect(await tkfToken.balanceOf(users[0].address)).to.equal(
+        user1LastBalance,
+      )
+      expect(await tkfToken.balanceOf(users[1].address)).to.equal(
+        user2LastBalance,
       )
     })
   })

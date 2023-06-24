@@ -164,6 +164,11 @@ contract TaskElection {
   function finalizeElection(
     uint256 _electionId
   ) public onlyAuthor(_electionId) electionIsOpen(_electionId) {
+    require(
+      elections[_electionId].numVoters > 0,
+      "There are no voters in this election"
+    );
+
     uint256 reward = elections[_electionId].reward;
     uint256 numVoters = voters[_electionId].length;
     uint256 numCandidates = candidates[_electionId].length;
@@ -205,6 +210,7 @@ contract TaskElection {
       elections[_electionId].author,
       elections[_electionId].reward
     );
+
     for (uint256 i = 0; i < elections[_electionId].numVoters; i++) {
       tkfToken.transfer(
         voters[_electionId][i],
