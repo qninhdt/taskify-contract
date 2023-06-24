@@ -77,6 +77,28 @@ contract TaskElection {
     _;
   }
 
+  event ElectionCreated(
+    uint256 id,
+    string picture,
+    string title,
+    string description,
+    address author,
+    uint256 reward
+  );
+
+  event CandidateAdded(uint256 electionId, string title);
+
+  event VoteCasted(
+    uint256 electionId,
+    address voter,
+    uint256 candidateId,
+    uint256 stake
+  );
+
+  event ElectionFinalized(uint256 electionId, uint256 winningCandidateId);
+
+  event ElectionCancelled(uint256 electionId);
+
   constructor(address _tkfTokenAddress) {
     owner = msg.sender;
     tkfToken = TKFToken(_tkfTokenAddress);
@@ -105,6 +127,15 @@ contract TaskElection {
       numVoters: 0,
       winningCandidateId: 0
     });
+
+    emit ElectionCreated(
+      electionId,
+      _picture,
+      _title,
+      _description,
+      msg.sender,
+      _reward
+    );
   }
 
   function addCandidate(
@@ -115,6 +146,8 @@ contract TaskElection {
     candidates[_electionId].push(
       Candidate({title: _title, totalStakes: 0, numVotes: 0})
     );
+
+    emit CandidateAdded(_electionId, _title);
   }
 
   function castVote(
@@ -144,6 +177,8 @@ contract TaskElection {
       stake: _stake,
       candidateId: _candidateId
     });
+
+    emit VoteCasted(_electionId, msg.sender, _candidateId, _stake);
   }
 
   function computeResult(
@@ -192,6 +227,11 @@ contract TaskElection {
         );
       }
     }
+
+    emit ElectionFinalized(
+      _electionId,
+      elections[_electionId].winningCandidateId
+    );
   }
 
   function getMyVote(
@@ -228,5 +268,7 @@ contract TaskElection {
     for (uint256 i = 0; i < elections[_electionId].numVoters; i++) {
       delete votes[_electionId][voters[_electionId][i]];
     }
+
+    emit ElectionCancelled(_electionId);
   }
 }

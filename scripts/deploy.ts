@@ -1,27 +1,20 @@
-import { ethers } from "hardhat";
+import { ethers, run } from "hardhat"
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  const TKFToken = await ethers.getContractFactory("TKFToken")
+  const tkfToken = await TKFToken.deploy()
 
-  const lockedAmount = ethers.parseEther("0.1");
+  const TaskElection = await ethers.getContractFactory("TaskElection")
+  const taskElection = await TaskElection.deploy(tkfToken.address)
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  } as any);
+  await tkfToken.deployed()
+  await taskElection.deployed()
 
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  console.log("TKFToken deployed to:", tkfToken.address)
+  console.log("TaskElection deployed to:", taskElection.address)
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+  console.error(error)
+  process.exitCode = 1
+})
