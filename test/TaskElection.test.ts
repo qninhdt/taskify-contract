@@ -62,6 +62,7 @@ describe("TaskElection", () => {
         "Election 1",
         "Election 1 description",
         TKF(15),
+        ["Candidate 1", "Candidate 2"],
       )
 
       const election = await taskElection.elections(0)
@@ -70,23 +71,12 @@ describe("TaskElection", () => {
       expect(election.title).to.equal("Election 1")
       expect(election.description).to.equal("Election 1 description")
       expect(election.reward).to.equal(TKF(15))
+      expect(election.state).to.equal(0)
+      expect(election.numCandidates).to.equal(2)
     })
 
     it("Should have right author", async () => {
       expect((await taskElection.elections(0)).author).to.equal(owner.address)
-    })
-
-    it("Should add 2 candidates", async () => {
-      await taskElection.addCandidate(0, "Candidate 1")
-      await taskElection.addCandidate(0, "Candidate 2")
-
-      expect((await taskElection.elections(0)).numCandidates).to.equal(2)
-      expect((await taskElection.candidates(0, 0)).title).to.equal(
-        "Candidate 1",
-      )
-      expect((await taskElection.candidates(0, 1)).title).to.equal(
-        "Candidate 2",
-      )
     })
 
     it("Should correctly record and retrieve votes for candidates", async () => {
@@ -147,10 +137,8 @@ describe("TaskElection", () => {
         "Election 2",
         "Election 2 description",
         TKF(15),
+        ["Candidate 1", "Candidate 2"],
       )
-
-      await taskElection.addCandidate(1, "Candidate 1")
-      await taskElection.addCandidate(1, "Candidate 2")
 
       const votes = [
         [0, TKF(2)],

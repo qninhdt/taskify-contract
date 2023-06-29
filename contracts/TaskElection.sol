@@ -86,8 +86,6 @@ contract TaskElection {
     uint256 reward
   );
 
-  event CandidateAdded(uint256 electionId, string title);
-
   event VoteCasted(
     uint256 electionId,
     address voter,
@@ -108,8 +106,12 @@ contract TaskElection {
     string memory _picture,
     string memory _title,
     string memory _description,
-    uint256 _reward
+    uint256 _reward,
+    string[] memory _candidates
   ) public {
+    require(_reward > 0, "Reward must be greater than 0");
+    require(_candidates.length > 0, "There must be at least one candidate");
+
     tkfToken.transferFrom(msg.sender, address(this), _reward);
 
     uint256 electionId = numElections;
@@ -123,10 +125,16 @@ contract TaskElection {
       author: msg.sender,
       state: ElectionState.OPEN,
       reward: _reward,
-      numCandidates: 0,
+      numCandidates: _candidates.length,
       numVoters: 0,
       winningCandidateId: 0
     });
+
+    for (uint i = 0; i < _candidates.length; i++) {
+      candidates[electionId].push(
+        Candidate({title: _candidates[i], numVotes: 0, totalStakes: 0})
+      );
+    }
 
     emit ElectionCreated(
       electionId,
@@ -136,18 +144,6 @@ contract TaskElection {
       msg.sender,
       _reward
     );
-  }
-
-  function addCandidate(
-    uint256 _electionId,
-    string memory _title
-  ) public onlyAuthor(_electionId) electionIsOpen(_electionId) {
-    elections[_electionId].numCandidates++;
-    candidates[_electionId].push(
-      Candidate({title: _title, totalStakes: 0, numVotes: 0})
-    );
-
-    emit CandidateAdded(_electionId, _title);
   }
 
   function castVote(
