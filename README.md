@@ -1,13 +1,6 @@
-# Sample Hardhat Project
+# TASKIFY
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+Ứng dụng bỏ phiếu phi tập trung (dApp) sử dụng Solidity
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
-```
+Repo frontend: [taskify-web](https://github.com/qninhdt/taskify-web)
+Video demo: [Video](https://drive.google.com/file/d/1inGA9EyruDtrkEQV1cjjfW8s8m7On7Kc/view?usp=sharing)
